@@ -11,7 +11,11 @@
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
+    "lint:fix": "eslint . --ext .ts --fix",
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "migration:run": "npm run typeorm migration:run -- -d ./src/infrastructure/config/database.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d ./src/infrastructure/config/database.ts",
+    "migration:create": "npm run typeorm migration:create"
   },
   "_moduleAliases": {
     "@": "src"

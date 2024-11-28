@@ -1,8 +1,9 @@
-import { IDriverRepository, ILocationService, RouteResponse } from '@/domain/interfaces';
+import { IDriverRepository } from '@/domain/interfaces/IDriverRepository';
+import { ILocationService } from '@/domain/interfaces/ILocationService';
 import { Driver } from '@/infrastructure/database/entities/Driver';
 
 interface EstimateRideRequest {
-  customerId: string;
+  customer_id: string;
   origin: string;
   destination: string;
 }
@@ -31,7 +32,7 @@ interface EstimateRideResponse {
   distance: number;
   duration: string;
   options: DriverOption[];
-  routeResponse: RouteResponse;
+  routeResponse: any;
 }
 
 export class EstimateRideUseCase {
@@ -40,8 +41,10 @@ export class EstimateRideUseCase {
     private locationService: ILocationService
   ) {}
 
-  async execute({ customerId, origin, destination }: EstimateRideRequest): Promise<EstimateRideResponse> {
-    if (!customerId?.trim()) {
+  async execute(request: EstimateRideRequest): Promise<EstimateRideResponse> {
+    const { customer_id, origin, destination } = request;
+
+    if (!customer_id?.trim()) {
       throw new Error('Customer ID is required');
     }
     if (!origin?.trim()) {
@@ -55,25 +58,31 @@ export class EstimateRideUseCase {
     }
 
     const route = await this.locationService.calculateRoute(origin, destination);
-    const availableDrivers = await this.driverRepository.findByMinimumDistance(route.distance);
-    const options = availableDrivers
-      .map(driver => ({
-        id: driver.id,
-        name: driver.name,
-        description: driver.description,
-        vehicle: driver.vehicle,
-        review: {
-          rating: driver.rating,
-          comment: this.getDriverReview(driver)
-        },
-        value: Number((route.distance * driver.pricePerKm).toFixed(2))
-      }))
-      .sort((a, b) => a.value - b.value);
+
+    const availableDrivers = await this.driverRepository.findByMinimumDistance(route.distance / 1000);
+
+    const options = availableDrivers.map(driver => ({
+      id: driver.id,
+      name: driver.name,
+      description: driver.description,
+      vehicle: driver.vehicle,
+      review: {
+        rating: driver.rating,
+        comment: this.getDriverReview(driver)
+      },
+      value: Number((route.distance / 1000 * driver.pricePerKm).toFixed(2))
+    })).sort((a, b) => a.value - b.value); 
 
     return {
-      origin: route.origin,
-      destination: route.destination,
-      distance: route.distance,
+      origin: {
+        latitude: route.origin.latitude,
+        longitude: route.origin.longitude
+      },
+      destination: {
+        latitude: route.destination.latitude,
+        longitude: route.destination.longitude
+      },
+      distance: route.distance / 1000,
       duration: route.duration,
       options,
       routeResponse: route.raw

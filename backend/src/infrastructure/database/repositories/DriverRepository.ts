@@ -15,9 +15,13 @@ export class DriverRepository implements IDriverRepository {
   }
 
   async findByMinimumDistance(distance: number): Promise<Driver[]> {
+    const distanceNumber = Math.floor(Number(distance));
+    
     return this.repository
       .createQueryBuilder('driver')
-      .where('driver.min_km_required <= :distance', { distance })
+      .where('driver.min_km_required <= :distance', { 
+        distance: distanceNumber 
+      })
       .orderBy('driver.price_per_km', 'ASC')
       .getMany();
   }

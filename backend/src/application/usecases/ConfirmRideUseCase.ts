@@ -2,7 +2,7 @@ import { IDriverRepository } from '@/domain/interfaces/IDriverRepository';
 import { IRideRepository } from '@/domain/interfaces/IRideRepository';
 
 interface ConfirmRideRequest {
-  customerId: string;
+  customer_id: string;
   origin: string;
   destination: string;
   distance: number;
@@ -14,43 +14,52 @@ interface ConfirmRideRequest {
   value: number;
 }
 
+interface ConfirmRideResponse {
+  success: boolean;
+}
+
 export class ConfirmRideUseCase {
   constructor(
-    private rideRepository: IRideRepository,
-    private driverRepository: IDriverRepository
+    private driverRepository: IDriverRepository,
+    private rideRepository: IRideRepository
   ) {}
 
-  async execute(request: ConfirmRideRequest): Promise<{ success: boolean }> {
-    if (!request.customerId?.trim()) {
+  async execute(request: ConfirmRideRequest): Promise<ConfirmRideResponse> {
+    const { customer_id, origin, destination, distance, duration, driver, value } = request;
+
+    if (!customer_id?.trim()) {
       throw new Error('Customer ID is required');
     }
-    if (!request.origin?.trim() || !request.destination?.trim()) {
+
+    if (!origin?.trim() || !destination?.trim()) {
       throw new Error('Origin and destination are required');
     }
-    if (request.origin === request.destination) {
+
+    if (origin === destination) {
       throw new Error('Origin and destination must be different');
     }
-    if (!request.driver?.id) {
-      throw new Error('Driver is required');
-    }
 
-    const driver = await this.driverRepository.findById(request.driver.id);
-    if (!driver) {
+    const driverEntity = await this.driverRepository.findById(driver.id);
+    if (!driverEntity) {
       throw new Error('Driver not found');
     }
 
-    if (request.distance < driver.minKmRequired) {
+    if (distance < driverEntity.minKmRequired) {
       throw new Error('Invalid distance for this driver');
     }
 
     await this.rideRepository.save({
-      customerId: request.customerId,
-      origin: request.origin,
-      destination: request.destination,
-      distance: request.distance,
-      duration: request.duration,
-      driver,
-      value: request.value
+      customerId: customer_id,
+      origin,
+      destination,
+      distance,
+      duration,
+      driver: driverEntity,
+      value,
+      originLatitude: null,
+      originLongitude: null,
+      destinationLatitude: null,
+      destinationLongitude: null
     });
 
     return { success: true };

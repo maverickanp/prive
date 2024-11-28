@@ -2,7 +2,14 @@ services:
   backend:
     build: 
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile_inline: |
+        FROM node:18
+        RUN apt update ; apt upgrade -y
+        WORKDIR /usr/app
+        COPY package.json .
+        RUN npm install
+    volumes:
+      - ./backend:/usr/app        
     ports:
       - "8080:8080"
     environment:
@@ -13,23 +20,10 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=ride_app
-    volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
     depends_on:
-      - postgres
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
+    command: sh -c "npm run migration:run && npm run dev"
 
   postgres:
     image: postgres:14-alpine
@@ -41,6 +35,11 @@ services:
       - POSTGRES_DB=ride_app
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

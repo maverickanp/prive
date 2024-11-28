@@ -8,7 +8,7 @@ export class CreateTables1700000000000 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'int',
+            type: 'integer',
             isPrimary: true,
           },
           {
@@ -25,7 +25,7 @@ export class CreateTables1700000000000 implements MigrationInterface {
           },
           {
             name: 'rating',
-            type: 'int',
+            type: 'integer',
           },
           {
             name: 'price_per_km',
@@ -35,8 +35,37 @@ export class CreateTables1700000000000 implements MigrationInterface {
           },
           {
             name: 'min_km_required',
-            type: 'int',
+            type: 'integer',
           },
+
+          {
+            name: 'origin_latitude',
+            type: 'decimal',
+            precision: 10,
+            scale: 8,
+            isNullable: true
+          },
+          {
+            name: 'origin_longitude',
+            type: 'decimal',
+            precision: 11,
+            scale: 8,
+            isNullable: true
+          },
+          {
+            name: 'destination_latitude',
+            type: 'decimal',
+            precision: 10,
+            scale: 8,
+            isNullable: true
+          },
+          {
+            name: 'destination_longitude',
+            type: 'decimal',
+            precision: 11,
+            scale: 8,
+            isNullable: true
+          }
         ],
       }),
       true
@@ -48,7 +77,7 @@ export class CreateTables1700000000000 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'int',
+            type: 'integer',
             isPrimary: true,
             isGenerated: true,
             generationStrategy: 'increment',
@@ -59,7 +88,7 @@ export class CreateTables1700000000000 implements MigrationInterface {
           },
           {
             name: 'driver_id',
-            type: 'int',
+            type: 'integer',
           },
           {
             name: 'origin',
@@ -95,24 +124,28 @@ export class CreateTables1700000000000 implements MigrationInterface {
             type: 'decimal',
             precision: 10,
             scale: 8,
+            isNullable: true
           },
           {
             name: 'origin_longitude',
             type: 'decimal',
             precision: 11,
             scale: 8,
+            isNullable: true
           },
           {
             name: 'destination_latitude',
             type: 'decimal',
             precision: 10,
             scale: 8,
+            isNullable: true
           },
           {
             name: 'destination_longitude',
             type: 'decimal',
             precision: 11,
             scale: 8,
+            isNullable: true
           },
         ],
       }),

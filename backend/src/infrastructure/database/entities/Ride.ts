@@ -38,15 +38,39 @@ export class Ride {
   @JoinColumn({ name: 'driver_id' })
   driver: Driver;
 
-  @Column({ name: 'origin_latitude', type: 'decimal', precision: 10, scale: 8 })
-  originLatitude: number;
+  @Column({ 
+    name: 'origin_latitude', 
+    type: 'decimal', 
+    precision: 10, 
+    scale: 8,
+    nullable: true 
+  })
+  originLatitude: number | null;
 
-  @Column({ name: 'origin_longitude', type: 'decimal', precision: 11, scale: 8 })
-  originLongitude: number;
+  @Column({ 
+    name: 'origin_longitude', 
+    type: 'decimal', 
+    precision: 11, 
+    scale: 8,
+    nullable: true 
+  })
+  originLongitude: number | null;
 
-  @Column({ name: 'destination_latitude', type: 'decimal', precision: 10, scale: 8 })
-  destinationLatitude: number;
+  @Column({ 
+    name: 'destination_latitude', 
+    type: 'decimal', 
+    precision: 10, 
+    scale: 8,
+    nullable: true 
+  })
+  destinationLatitude: number | null;
 
-  @Column({ name: 'destination_longitude', type: 'decimal', precision: 11, scale: 8 })
-  destinationLongitude: number;
+  @Column({ 
+    name: 'destination_longitude', 
+    type: 'decimal', 
+    precision: 11, 
+    scale: 8,
+    nullable: true 
+  })
+  destinationLongitude: number | null;
 }
