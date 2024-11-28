@@ -1,4 +1,5 @@
 import './config/module-alias';
+import 'reflect-metadata';
 import { AppDataSource } from '@/infrastructure/config/database';
 import app from './app';
 
@@ -11,8 +12,7 @@ AppDataSource.initialize()
       console.log('Database connection initialized');
     });
   })
-  .catch((error) => {
+  .catch((error: Error) => {
     console.error('Error initializing database:', error);
     process.exit(1);
   });
-
