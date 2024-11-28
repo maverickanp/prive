@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Rota</title>
+    <style>
+        body { padding: 20px; font-family: Arial; }
+        input, button { margin: 10px 0; padding: 5px; width: 300px; }
+        button { background: #4CAF50; color: white; border: none; padding: 10px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Teste do Serviço de Rotas</h2>
+    <input type="text" id="origin" placeholder="Origem (ex: Av Paulista, São Paulo)" />
+    <br>
+    <input type="text" id="destination" placeholder="Destino (ex: Pinheiros, São Paulo)" />
+    <br>
+    <button onclick="calcularRota()">Calcular Rota</button>
+    <pre id="result"></pre>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA84Xn8OABGFHnDzIuzsbun1uZaMu2oQlo&callback=initMap" async defer></script>
+    <script>
+        async function calcularRota() {
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const resultDiv = document.getElementById('result');
+
+            try {
+                const response = await fetch('http://localhost:8080/api/test/routes/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ origin, destination })
+                });
+
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.textContent = 'Erro: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
