@@ -7,6 +7,7 @@ services:
         RUN apt update ; apt upgrade -y
         WORKDIR /usr/app
         COPY package.json .
+        COPY tsconfig.json .
         RUN npm install
     volumes:
       - ./backend:/usr/app        

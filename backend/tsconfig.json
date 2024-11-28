@@ -7,7 +7,6 @@
     "rootDir": ".",
     "strict": true,
     "strictPropertyInitialization": false,
-    "resolveJsonModule": true,
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
@@ -17,7 +16,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,    
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]

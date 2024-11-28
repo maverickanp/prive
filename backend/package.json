@@ -13,8 +13,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "typeorm": "ts-node ./node_modules/typeorm/cli",
-    "migration:run": "npm run typeorm migration:run -- -d ./src/infrastructure/config/database.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ./src/infrastructure/config/database.ts",
+    "migration:run": "npm run typeorm migration:run -- -d src/infrastructure/config/database.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d src/infrastructure/config/database.ts",
     "migration:create": "npm run typeorm migration:create"
   },
   "_moduleAliases": {
@@ -26,21 +26,25 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-validator": "^7.0.1",
+    "inversify": "^6.1.4",
     "module-alias": "^2.2.3",
     "pg": "^8.11.3",
+    "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.11",
+    "@types/jest": "^29.5.14",
     "@types/module-alias": "^2.0.4",
     "@types/node": "^20.11.0",
+    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
     "jest": "^29.7.0",
-    "ts-jest": "^29.1.1",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"

@@ -1,36 +1,44 @@
 import { Request, Response } from 'express';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/infrastructure/container/types';
+import { AppError } from '@/domain/errors/AppError';
 import { EstimateRideUseCase } from '@/application/usecases/EstimateRideUseCase';
 import { ConfirmRideUseCase } from '@/application/usecases/ConfirmRideUseCase';
-import { GoogleMapsService } from '@/infrastructure/services/GoogleMapsService';
-import { DriverRepository } from '@/infrastructure/database/repositories/DriverRepository';
-import { RideRepository } from '@/infrastructure/database/repositories/RideRepository';
+import { ListRidesUseCase } from '@/application/usecases/ListRidesUseCase';
 
+@injectable()
 export class RideController {
+  constructor(
+    @inject(TYPES.EstimateRideUseCase)
+    private estimateRideUseCase: EstimateRideUseCase,
+
+    @inject(TYPES.ConfirmRideUseCase)
+    private confirmRideUseCase: ConfirmRideUseCase,
+
+    @inject(TYPES.ListRidesUseCase)
+    private listRidesUseCase: ListRidesUseCase
+  ) {}
+
   async estimate(req: Request, res: Response): Promise<Response> {
     try {
       const { customer_id, origin, destination } = req.body;
-
-      const estimateRideUseCase = new EstimateRideUseCase(
-        new DriverRepository(),
-        new GoogleMapsService()
-      );
-
-      const result = await estimateRideUseCase.execute({
+      
+      const result = await this.estimateRideUseCase.execute({
         customer_id,
         origin,
         destination
       });
 
       return res.status(200).json(result);
-
     } catch (error) {
-      if (error instanceof Error) {
-        return res.status(400).json({
-          error_code: 'INVALID_DATA',
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          error_code: error.errorCode,
           error_description: error.message
         });
       }
 
+      console.error('Unexpected error:', error);
       return res.status(500).json({
         error_code: 'INTERNAL_ERROR',
         error_description: 'Internal server error'
@@ -40,53 +48,17 @@ export class RideController {
 
   async confirm(req: Request, res: Response): Promise<Response> {
     try {
-      const { 
-        customer_id, 
-        origin, 
-        destination, 
-        distance, 
-        duration, 
-        driver, 
-        value 
-      } = req.body;
-
-      const confirmRideUseCase = new ConfirmRideUseCase(
-        new DriverRepository(),
-        new RideRepository()
-      );
-
-      const result = await confirmRideUseCase.execute({
-        customer_id,
-        origin,
-        destination,
-        distance,
-        duration,
-        driver,
-        value
-      });
-
+      const result = await this.confirmRideUseCase.execute(req.body);
       return res.status(200).json(result);
-
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes('Driver not found')) {
-          return res.status(404).json({
-            error_code: 'DRIVER_NOT_FOUND',
-            error_description: error.message
-          });
-        }
-        if (error.message.includes('Invalid distance')) {
-          return res.status(406).json({
-            error_code: 'INVALID_DISTANCE',
-            error_description: error.message
-          });
-        }
-        return res.status(400).json({
-          error_code: 'INVALID_DATA',
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          error_code: error.errorCode,
           error_description: error.message
         });
       }
 
+      console.error('Unexpected error:', error);
       return res.status(500).json({
         error_code: 'INTERNAL_ERROR',
         error_description: 'Internal server error'
@@ -94,14 +66,26 @@ export class RideController {
     }
   }
 
-  async some(req: Request, res: Response): Promise<void> {
+  async listRides(req: Request, res: Response): Promise<Response> {
     try {
-      const users = {
-        "mensagem": "OK"
-      }
-      res.status(200).json(users);
+      const customerId = req.params.customer_id;
+      const driverId = req.query.driver_id ? Number(req.query.driver_id) : undefined;
+
+      const result = await this.listRidesUseCase.execute(customerId, driverId);
+      return res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          error_code: error.errorCode,
+          error_description: error.message
+        });
+      }
+
+      console.error('Unexpected error:', error);
+      return res.status(500).json({
+        error_code: 'INTERNAL_ERROR',
+        error_description: 'Internal server error'
+      });
     }
   }
 }

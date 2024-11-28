@@ -18,5 +18,6 @@ module.exports = {
     '!src/main/**',
     '!src/tests/**'
   ],
-  roots: ['<rootDir>/src', '<rootDir>/tests']
-}
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
+};

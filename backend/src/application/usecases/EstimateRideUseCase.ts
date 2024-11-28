@@ -1,5 +1,8 @@
+import { inject, injectable } from 'inversify';
 import { IDriverRepository } from '@/domain/interfaces/IDriverRepository';
 import { ILocationService } from '@/domain/interfaces/ILocationService';
+import { ValidationError } from '@/domain/errors/ValidationError';
+import { TYPES } from '@/infrastructure/container/types';
 import { Driver } from '@/infrastructure/database/entities/Driver';
 
 interface EstimateRideRequest {
@@ -8,83 +11,54 @@ interface EstimateRideRequest {
   destination: string;
 }
 
-interface DriverOption {
-  id: number;
-  name: string;
-  description: string;
-  vehicle: string;
-  review: {
-    rating: number;
-    comment: string;
-  };
-  value: number;
-}
-
-interface EstimateRideResponse {
-  origin: {
-    latitude: number;
-    longitude: number;
-  };
-  destination: {
-    latitude: number;
-    longitude: number;
-  };
-  distance: number;
-  duration: string;
-  options: DriverOption[];
-  routeResponse: any;
-}
-
+@injectable()
 export class EstimateRideUseCase {
   constructor(
+    @inject(TYPES.DriverRepository)
     private driverRepository: IDriverRepository,
-    private locationService: ILocationService
-  ) {}
 
-  async execute(request: EstimateRideRequest): Promise<EstimateRideResponse> {
+    @inject(TYPES.LocationService)
+    private locationService: ILocationService
+  ) { }
+
+  async execute(request: EstimateRideRequest) {
     const { customer_id, origin, destination } = request;
 
     if (!customer_id?.trim()) {
-      throw new Error('Customer ID is required');
+      throw new ValidationError('Customer ID is required');
     }
+
     if (!origin?.trim()) {
-      throw new Error('Origin is required');
+      throw new ValidationError('Origin is required');
     }
+
     if (!destination?.trim()) {
-      throw new Error('Destination is required');
+      throw new ValidationError('Destination is required');
     }
+
     if (origin === destination) {
-      throw new Error('Origin and destination must be different');
+      throw new ValidationError('Origin and destination must be different');
     }
 
     const route = await this.locationService.calculateRoute(origin, destination);
-
     const availableDrivers = await this.driverRepository.findByMinimumDistance(route.distance / 1000);
 
-    const options = availableDrivers.map(driver => ({
-      id: driver.id,
-      name: driver.name,
-      description: driver.description,
-      vehicle: driver.vehicle,
-      review: {
-        rating: driver.rating,
-        comment: this.getDriverReview(driver)
-      },
-      value: Number((route.distance / 1000 * driver.pricePerKm).toFixed(2))
-    })).sort((a, b) => a.value - b.value); 
-
     return {
-      origin: {
-        latitude: route.origin.latitude,
-        longitude: route.origin.longitude
-      },
-      destination: {
-        latitude: route.destination.latitude,
-        longitude: route.destination.longitude
-      },
+      origin: route.origin,
+      destination: route.destination,
       distance: route.distance / 1000,
       duration: route.duration,
-      options,
+      options: availableDrivers.map(driver => ({
+        id: driver.id,
+        name: driver.name,
+        description: driver.description,
+        vehicle: driver.vehicle,
+        review: {
+          rating: driver.rating,
+          comment: this.getDriverReview(driver)
+        },
+        value: Number((route.distance / 1000 * driver.pricePerKm).toFixed(2))
+      })).sort((a, b) => a.value - b.value),
       routeResponse: route.raw
     };
   }
