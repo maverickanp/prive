@@ -11,7 +11,8 @@ module.exports = {
     }]
   },
   testMatch: [
-    '**/tests/**/*.spec.ts'
+    '**/tests/**/*.spec.ts',
+    '**/tests/**/*.test.ts'
   ],
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -19,5 +20,5 @@ module.exports = {
     '!src/tests/**'
   ],
   roots: ['<rootDir>/src', '<rootDir>/tests'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts']
-};
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts']
+}

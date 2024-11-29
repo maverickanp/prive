@@ -1,13 +1,12 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '@/infrastructure/config/database';
 import { Driver } from '@/infrastructure/database/entities/Driver';
-import { IDriverRepository } from '@/domain/interfaces/IDriverRepository';
+import { TestDataSource } from '@/infrastructure/config/database.test';
+import { Repository } from 'typeorm';
 
-export class DriverRepository implements IDriverRepository {
+export class DriverRepository {
   private repository: Repository<Driver>;
 
   constructor() {
-    this.repository = AppDataSource.getRepository(Driver);
+    this.repository = TestDataSource.getRepository(Driver);
   }
 
   async findById(id: number): Promise<Driver | null> {
@@ -15,13 +14,9 @@ export class DriverRepository implements IDriverRepository {
   }
 
   async findByMinimumDistance(distance: number): Promise<Driver[]> {
-    const distanceNumber = Math.floor(Number(distance));
-    
     return this.repository
       .createQueryBuilder('driver')
-      .where('driver.min_km_required <= :distance', { 
-        distance: distanceNumber 
-      })
+      .where('driver.min_km_required <= :distance', { distance })
       .orderBy('driver.price_per_km', 'ASC')
       .getMany();
   }

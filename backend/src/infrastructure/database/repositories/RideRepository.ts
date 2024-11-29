@@ -1,13 +1,12 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '@/infrastructure/config/database';
 import { Ride } from '@/infrastructure/database/entities/Ride';
-import { IRideRepository } from '@/domain/interfaces/IRideRepository';
+import { TestDataSource } from '@/infrastructure/config/database.test';
+import { Repository } from 'typeorm';
 
-export class RideRepository implements IRideRepository {
+export class RideRepository {
   private repository: Repository<Ride>;
 
   constructor() {
-    this.repository = AppDataSource.getRepository(Ride);
+    this.repository = TestDataSource.getRepository(Ride);
   }
 
   async save(ride: Partial<Ride>): Promise<Ride> {
